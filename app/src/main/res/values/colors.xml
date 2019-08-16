@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#3AA8CB</color>
+    <color name="accent_disabled">#C4DEE7</color>
+    <color name="accent_lighter">#5FC4E3</color>
+
+    <color name="layout_bg">#FFFFFF</color>
+    <color name="divider">#ECECEC</color>
+
+    <color name="text_primary_dark">#19324F</color>
+    <color name="text_secondary_dark">#9CAABB</color>
+
+    <color name="text_primary_light">#FFFFFF</color>
+    <color name="text_secondary_light">@color/text_secondary_dark</color>
+
+    <color name="error_bg">#D77979</color>
+
+</resources>

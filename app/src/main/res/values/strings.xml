@@ -1,0 +1,40 @@
+<resources>
+
+    <!-- COMMON -->
+    <string name="app_name">Trip planner</string>
+    <string name="action_save">Сохранить</string>
+
+    <!-- TRIP LIST -->
+    <string name="trips_list_empty_message">Вы пока ничего\nне планировали</string>
+    <string name="trips_list_title">Поездки</string>
+    <string name="trips_list_action">Добавить поездку</string>
+
+    <!-- TRIP CREATE -->
+    <string name="create_trip_title">Новая поездка</string>
+    <string name="create_trip_name_hint">Название</string>
+    <string name="create_trip_start_date_hint">Дата начала</string>
+    <string name="create_trip_end_date_hint">Дата окончания</string>
+
+    <!-- TRIP CREATE ERROR -->
+    <string name="error_trip_no_name">Введите название поездки</string>
+    <string name="error_trip_no_start_date">Введите дату начала поездки</string>
+    <string name="error_trip_no_end_date">Введите дату окончания поездки</string>
+    <string name="error_trip_start_date_after_end_date">Дата начала поездки не может быть позже даты окончания</string>
+
+    <!-- TRIP INFO -->
+    <string name="actions_list_empty_message">Пока здесь нет активностей</string>
+    <string name="actions_list_action">Добавить активность</string>
+
+    <!-- ACTION CREATE -->
+    <string name="create_action_title">Новая активность</string>
+    <string name="create_action_date_hint">Дата</string>
+    <string name="create_action_start_time_hint">Время начала</string>
+    <string name="create_action_end_time_hint">Время окончания</string>
+
+    <!-- ACTION CREATE ERROR -->
+    <string name="error_action_no_name">Введите название</string>
+    <string name="error_action_no_date">Введите дату</string>
+    <string name="error_action_no_start_time">Введите время начала</string>
+    <string name="error_action_start_time_after_end_time">Время начала не может быть позже времени окончания</string>
+
+</resources>

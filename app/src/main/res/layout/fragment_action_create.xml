@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools" android:id="@+id/contentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@color/layout_bg"
+        android:animateLayoutChanges="true">
+
+    <com.example.travelplanner.base.views.ScreenHeader
+            android:id="@+id/screenHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:leftButtonImage="@drawable/arrow_left_dark"
+            app:primaryText="@string/create_action_title"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    <View
+            android:id="@+id/divider"
+            style="@style/Divider"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@+id/screenHeader"/>
+
+    <EditText
+            style="@style/EditField"
+            android:id="@+id/nameField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:hint="@string/create_trip_name_hint"
+            android:imeOptions="actionDone"
+            android:inputType="textCapSentences"
+            android:lines="1"
+            app:layout_constraintTop_toBottomOf="@+id/divider"/>
+
+    <TextView
+            style="@style/EditField"
+            android:id="@+id/dateField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/create_action_date_hint"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintTop_toBottomOf="@+id/nameField"/>
+
+    <TextView
+            style="@style/EditField"
+            android:id="@+id/startTimeField"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="4dp"
+            android:hint="@string/create_action_start_time_hint"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintTop_toBottomOf="@+id/dateField"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/endTimeField"/>
+
+    <TextView
+            style="@style/EditField"
+            android:id="@+id/endTimeField"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="4dp"
+            android:hint="@string/create_action_end_time_hint"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintTop_toBottomOf="@+id/dateField"
+            app:layout_constraintStart_toEndOf="@+id/startTimeField"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+            android:id="@+id/errorText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="48dp"
+            android:gravity="start|center_vertical"
+            android:textAppearance="@style/TextAppearanceBase"
+            android:textColor="@color/text_primary_light"
+            android:textSize="12sp"
+            android:background="@drawable/error_bg"
+            android:visibility="gone"
+            tools:text="Произошла ошибка"
+            app:layout_constraintBottom_toBottomOf="@+id/actionButton"/>
+
+    <TextView
+            style="@style/ActionButton"
+            android:id="@+id/actionButton"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="24dp"
+            android:text="@string/action_save"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
