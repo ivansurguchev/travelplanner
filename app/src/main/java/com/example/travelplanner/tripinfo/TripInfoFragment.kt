@@ -46,7 +46,7 @@ class TripInfoFragment: Fragment() {
         adapter = ActionsAdapter(context!!)
         actionsList.layoutManager = LinearLayoutManager(context)
         actionsList.adapter = adapter
-        viewModel?.tripSatate?.observe(this, Observer { onTripChanged(it) })
+        viewModel?.tripState?.observe(this, Observer { onTripChanged(it) })
         viewModel?.actionsState?.observe(this, Observer { onActionsChanged(it) })
         actionButton.setOnClickListener { viewModel?.onCreateActionClicked() }
         screenHeader.leftButtonListener = { viewModel?.onBackPressed() }

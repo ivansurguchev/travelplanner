@@ -1,6 +1,5 @@
 package com.example.travelplanner.actioncreate
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.*
@@ -15,6 +14,7 @@ import com.example.travelplanner.base.architecture.update
 import com.example.travelplanner.base.data.PlannerInteractor
 import com.example.travelplanner.base.routing.ACTION_CREATION_KEY
 import com.example.travelplanner.base.routing.PlannerRouterHolder
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import org.joda.time.DateTime
 import javax.inject.Inject
@@ -32,13 +32,15 @@ class ActionCreateViewModel(application: Application, lifecycle: Lifecycle, trip
 
     private val context: Context = application.applicationContext
     private val tripSubject: BehaviorSubject<Trip> = BehaviorSubject.create()
+    private var compositeDisposable = CompositeDisposable()
 
     init {
         lifecycle.addObserver(this)
         PlannerApplication.instance?.getPlannerComponent()?.inject(this)
-        plannerInteractor
+        val tripDisposable = plannerInteractor
             .getTrip(tripId)
             .subscribe({tripSubject.onNext(it)}, {tripSubject.onError(it)})
+        compositeDisposable.add(tripDisposable)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -46,13 +48,18 @@ class ActionCreateViewModel(application: Application, lifecycle: Lifecycle, trip
         state.postValue(ActionCreateState())
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun stop() {
+        compositeDisposable.dispose()
+    }
+
     fun onNameChanged(name: String) {
         state.value?.name = name
     }
 
-    @SuppressLint("CheckResult")
     fun onDateFieldClicked() {
-        tripSubject.subscribe({ showDatePicker(it) }, { it.printStackTrace() })
+        val tripDisposable = tripSubject.subscribe({ showDatePicker(it) }, { it.printStackTrace() })
+        compositeDisposable.add(tripDisposable)
     }
 
     private fun showDatePicker(trip: Trip) {

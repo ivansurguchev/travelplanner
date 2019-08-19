@@ -1,6 +1,5 @@
 package com.example.travelplanner.tripinfo
 
-import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.*
 import com.example.travelplanner.PlannerApplication
@@ -10,12 +9,13 @@ import com.example.travelplanner.base.data.PlannerInteractor
 import com.example.travelplanner.base.routing.PlannerRouterHolder
 import com.example.travelplanner.tripslist.TripItem
 import com.example.travelplanner.tripslist.toItem
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 class TripInfoViewModel(application: Application, lifecycle: Lifecycle, private val tripId: Long)
     : AndroidViewModel(application), LifecycleObserver {
 
-    var tripSatate = MutableLiveData<TripItem>()
+    var tripState = MutableLiveData<TripItem>()
     var actionsState = MutableLiveData<List<Item>>()
 
     @Inject
@@ -23,17 +23,24 @@ class TripInfoViewModel(application: Application, lifecycle: Lifecycle, private 
     @Inject
     internal lateinit var routerHolder: PlannerRouterHolder
 
+    private var compositeDisposable = CompositeDisposable()
+
     init {
         PlannerApplication.instance?.getPlannerComponent()?.inject(this)
         lifecycle.addObserver(this)
     }
 
-    @SuppressLint("CheckResult")
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun start() {
-        plannerInteractor
+        val tripDisposable =plannerInteractor
             .getTrip(tripId)
             .subscribe({ onTripLoaded(it) }, { it.printStackTrace() })
+        compositeDisposable.add(tripDisposable)
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun stop() {
+        compositeDisposable.dispose()
     }
 
     fun onCreateActionClicked() {
@@ -45,16 +52,16 @@ class TripInfoViewModel(application: Application, lifecycle: Lifecycle, private 
     }
 
     private fun onTripLoaded(trip: Trip) {
-        tripSatate.postValue(trip.toItem())
+        tripState.postValue(trip.toItem())
         actionsState.postValue(trip.actions.toItems())
     }
 
-    @SuppressLint("CheckResult")
     private fun onActionCreated(action: Action) {
-        plannerInteractor
+        val addActionDisposable = plannerInteractor
             .addTripAction(tripId, action)
             .map { it.actions.toItems() }
             .subscribe({ actionsState.postValue(it) }, { it.printStackTrace() })
+        compositeDisposable.add(addActionDisposable)
     }
 }
 

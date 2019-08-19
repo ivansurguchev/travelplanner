@@ -18,8 +18,6 @@ import javax.inject.Inject
 
 class PlannerActivity : AppCompatActivity(), PlannerRouter {
 
-    private val callbacks: MutableMap<String, (Any?) -> Unit> = mutableMapOf()
-
     @Inject
     internal lateinit var routerHolder: PlannerRouterHolder
 
@@ -28,13 +26,17 @@ class PlannerActivity : AppCompatActivity(), PlannerRouter {
         setContentView(R.layout.activity_main)
         setStatusBar()
         PlannerApplication.instance?.getPlannerComponent()?.inject(this)
-        routerHolder.registerRouter(this)
+        routerHolder.router = this
         if (savedInstanceState == null) goToTripsList()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        routerHolder.unregisterRouter()
+        routerHolder.router = null
+    }
+
+    override fun onBackPressed() {
+        goBack()
     }
 
     override fun goToTripsList() {
@@ -47,12 +49,12 @@ class PlannerActivity : AppCompatActivity(), PlannerRouter {
 
     override fun goToTripCreation(resultCallback: (Any?) -> Unit) {
         showFragment(TripCreateFragment())
-        callbacks[TRIP_CREATION_KEY] = resultCallback
+        routerHolder.callbacks[TRIP_CREATION_KEY] = resultCallback
     }
 
     override fun goToActionCreation(tripId: Long, resultCallback: (Any?) -> Unit) {
         showFragment(ActionCreateFragment.newInstance(tripId))
-        callbacks[ACTION_CREATION_KEY] = resultCallback
+        routerHolder.callbacks[ACTION_CREATION_KEY] = resultCallback
     }
 
     override fun goBack() {
@@ -61,11 +63,7 @@ class PlannerActivity : AppCompatActivity(), PlannerRouter {
     }
 
     override fun provideResult(key: String, value: Any?) {
-        callbacks[key]?.invoke(value)
-    }
-
-    override fun onBackPressed() {
-        goBack()
+        routerHolder.callbacks[key]?.invoke(value)
     }
 
     private fun showFragment(fragment: Fragment) {

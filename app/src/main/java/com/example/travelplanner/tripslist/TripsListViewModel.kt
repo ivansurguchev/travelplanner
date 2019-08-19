@@ -9,11 +9,10 @@ import com.example.travelplanner.base.architecture.LoadingState
 import com.example.travelplanner.base.architecture.update
 import com.example.travelplanner.base.data.PlannerInteractor
 import com.example.travelplanner.base.routing.PlannerRouterHolder
-import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
-class TripsListViewModel(application: Application, lifecycle: Lifecycle)
-    : AndroidViewModel(application), LifecycleObserver {
+class TripsListViewModel(application: Application, lifecycle: Lifecycle) : AndroidViewModel(application), LifecycleObserver {
 
     var state = TripsListLiveData()
 
@@ -22,8 +21,7 @@ class TripsListViewModel(application: Application, lifecycle: Lifecycle)
     @Inject
     internal lateinit var routerHolder: PlannerRouterHolder
 
-    private var allTripsSubscription: Disposable? = null
-    private var trips: MutableMap<Long?, Trip> = mutableMapOf()
+    private var compositeDisposable = CompositeDisposable()
 
     init {
         PlannerApplication.instance?.getPlannerComponent()?.inject(this)
@@ -32,48 +30,49 @@ class TripsListViewModel(application: Application, lifecycle: Lifecycle)
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun start() {
-        allTripsSubscription = plannerInteractor.loadTrips()
+        val allTripsDisposable = plannerInteractor.loadTrips()
             .doOnSubscribe { state.value =
                 LoadingScreenState(LoadingState.LOADING)
             }
-            .doOnSuccess { list -> trips = list.associateBy { it.id }.toMutableMap() }
             .onErrorReturn { if (it is NoSuchElementException) listOf() else throw(it) }
-            .map { list -> list.sortedBy { it.endsAt.millis }.map { it.toItem() } }
+            .map { it.toItems() }
             .subscribe(
-                { state.value = LoadingScreenState(
-                    LoadingState.LOADED,
-                    it
-                )
-                },
-                { state.value = LoadingScreenState(
-                    LoadingState.ERROR,
-                    null,
-                    it.message
-                )
-                })
+                { state.value = LoadingScreenState(LoadingState.LOADED, it) },
+                { state.value = LoadingScreenState(LoadingState.ERROR, null, it.message) })
+        compositeDisposable.add(allTripsDisposable)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun stop() {
-        allTripsSubscription?.dispose()
+        compositeDisposable.dispose()
     }
 
     fun onCreateNewTripClick() {
         routerHolder.router?.goToTripCreation { onTripEdited(it as Trip) }
     }
 
-    fun onTripClick(id: Long?) {
-        val tripToGo = trips[id]
-        if (tripToGo != null) routerHolder.router?.goToTrip(tripToGo.id)
+    fun onTripClick(id: Long) {
+        val tripClickDisposable = plannerInteractor
+            .getTrip(id)
+            .subscribe({ routerHolder.router?.goToTrip(id) }, { it.printStackTrace()})
+        compositeDisposable.add(tripClickDisposable)
     }
 
     private fun onTripEdited(trip: Trip) {
-        plannerInteractor.saveTrip(trip)
-        trips[trip.id] = trip
-        state.value?.loadedData = trips.values.sortedByDescending { it.endsAt.millis}.map { it.toItem() }
-        state.update()
+        val tripEditDisposable = plannerInteractor
+            .saveTrip(trip)
+            .map { it.toItems() }
+            .subscribe({
+                state.value?.loadedData = it
+                state.update()
+            }, {
+                it.printStackTrace()
+            })
+        compositeDisposable.add(tripEditDisposable)
     }
 }
+
+private fun List<Trip>.toItems() = sortedBy { it.startsAt.millis }.map { it.toItem() }
 
 class TripsListViewModelFactory(private val application: Application, private val lifecycle: Lifecycle)
     : ViewModelProvider.Factory {
@@ -82,4 +81,5 @@ class TripsListViewModelFactory(private val application: Application, private va
         return TripsListViewModel(application, lifecycle) as T
     }
 }
+
 

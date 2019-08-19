@@ -13,15 +13,6 @@ interface PlannerRouter : Router {
 }
 
 class PlannerRouterHolder {
-
+    val callbacks: MutableMap<String, (Any?) -> Unit> = mutableMapOf()
     var router: PlannerRouter? = null
-        private set
-
-    fun registerRouter(router: PlannerRouter) {
-        this.router = router
-    }
-
-    fun unregisterRouter() {
-        this.router = null
-    }
 }

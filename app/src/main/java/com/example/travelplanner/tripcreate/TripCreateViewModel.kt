@@ -17,12 +17,13 @@ import javax.inject.Inject
 class TripCreateViewModel(application: Application, val lifecycle: Lifecycle) :
     AndroidViewModel(application), LifecycleObserver {
 
-    private val context: Context = application.applicationContext
     var state = MutableLiveData<CreateTripState>()
     val events = MutableLiveData<Event?>()
 
     @Inject
     internal lateinit var routerHolder: PlannerRouterHolder
+
+    private val context: Context = application.applicationContext
 
     init {
         lifecycle.addObserver(this)
@@ -41,13 +42,15 @@ class TripCreateViewModel(application: Application, val lifecycle: Lifecycle) :
     fun onStartDateFieldClicked() {
         val initialDate = state.value?.startDate ?: DateTime.now()
         val listener = { year: Int, month: Int, day: Int -> onStartDateChanged(year, month, day) }
-        events.postValue(ShowDatePickerEvent(initialDate.year, initialDate.monthOfYear - 1, initialDate.dayOfMonth, null, null, listener))
+        events.postValue(
+            ShowDatePickerEvent(initialDate.year, initialDate.monthOfYear - 1, initialDate.dayOfMonth, null, null, listener))
     }
 
     fun onEndDateFieldClicked() {
         val initialDate = state.value?.endDate ?: state.value?.startDate ?:DateTime.now()
         val listener = { year: Int, month: Int, day: Int -> onEndDateChanged(year, month, day) }
-        events.postValue(ShowDatePickerEvent(initialDate.year, initialDate.monthOfYear - 1, initialDate.dayOfMonth, null, null, listener))
+        events.postValue(
+            ShowDatePickerEvent(initialDate.year, initialDate.monthOfYear - 1, initialDate.dayOfMonth, null, null, listener))
     }
 
     fun onActionButtonClicked() {

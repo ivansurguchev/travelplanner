@@ -1,6 +1,5 @@
 package com.example.travelplanner.base.data
 
-import android.annotation.SuppressLint
 import com.example.travelplanner.base.Action
 import com.example.travelplanner.base.Trip
 import com.example.travelplanner.base.applySchedulers
@@ -26,26 +25,27 @@ class PlannerInteractor(private val storageManager: StorageManager) {
     }
 
     fun loadTrips(): Single<List<Trip>> {
-        return tripsLoadedSubject.firstOrError().map { it.values.toList() }.doOnError { it.printStackTrace() }
+        return tripsLoadedSubject
+            .firstOrError()
+            .map { it.values.toList().sortedBy { trip -> trip.startsAt.millis } }
+            .doOnError { it.printStackTrace() }
     }
 
-    @SuppressLint("CheckResult")
-    fun saveTrip(trip: Trip) {
-        tripsLoadedSubject
+    fun saveTrip(trip: Trip): Single<List<Trip>> {
+        return tripsLoadedSubject
             .firstOrError()
+            .onErrorReturn { mutableMapOf() }
             .map {
                 val id = trip.id
                 it[id] = trip
                 it
             }
-            .subscribe(
-                {
-                    storageManager.save(TRIPS_FILE_NAME, it)
-                    tripsLoadedSubject.onNext(it)
-                },
-                {
-                    it.printStackTrace()
-                })
+            .doOnSuccess {
+                storageManager.save(TRIPS_FILE_NAME, it)
+                tripsLoadedSubject.onNext(it)
+            }
+            .doOnError { it.printStackTrace() }
+            .map { it.values.toList().sortedBy { trip -> trip.startsAt.millis } }
     }
 
     fun getTrip(id: Long?): Single<Trip> {
@@ -55,7 +55,6 @@ class PlannerInteractor(private val storageManager: StorageManager) {
             .doOnError { it.printStackTrace() }
     }
 
-    @SuppressLint("CheckResult")
     fun addTripAction(tripId: Long, action: Action): Single<Trip> {
         return tripsLoadedSubject
             .firstOrError()

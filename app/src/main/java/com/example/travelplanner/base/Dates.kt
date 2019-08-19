@@ -13,7 +13,7 @@ import com.google.gson.JsonDeserializer
 import java.lang.reflect.Type
 
 private const val FULL_MONTH_DATE_PATTERN = "d MMMM"
-private const val DATE_TIME_PATTERN = "hh:mm"
+private const val DATE_TIME_PATTERN = "HH:mm"
 
 fun DateTime.toReadableString(): String = this.toString(FULL_MONTH_DATE_PATTERN)
 

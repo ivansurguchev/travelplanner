@@ -6,7 +6,6 @@ import com.example.travelplanner.base.di.PlannerModule
 import com.example.travelplanner.base.di.DaggerPlannerComponent
 import net.danlew.android.joda.JodaTimeAndroid
 
-
 class PlannerApplication : Application() {
 
     private lateinit var plannerComponent: PlannerComponent
