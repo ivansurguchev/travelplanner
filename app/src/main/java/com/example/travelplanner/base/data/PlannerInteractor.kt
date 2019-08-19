@@ -18,9 +18,9 @@ class PlannerInteractor(private val storageManager: StorageManager) {
         val tripsMapType = object : TypeToken<Map<Long?, Trip>>() {}.type
         storageManager
             .load<MutableMap<Long?, Trip>>(TRIPS_FILE_NAME, tripsMapType)
+            .onErrorReturn { mutableMapOf() }
             .applySchedulers()
             .doOnSuccess { tripsLoadedSubject.onNext(it) }
-            .doOnError { tripsLoadedSubject.onError(it) }
             .justSubscribe()
     }
 
@@ -34,7 +34,6 @@ class PlannerInteractor(private val storageManager: StorageManager) {
     fun saveTrip(trip: Trip): Single<List<Trip>> {
         return tripsLoadedSubject
             .firstOrError()
-            .onErrorReturn { mutableMapOf() }
             .map {
                 val id = trip.id
                 it[id] = trip
